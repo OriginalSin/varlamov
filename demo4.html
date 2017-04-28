@@ -36,13 +36,7 @@
 			news.setDateInterval(ddt1, ddt2);
 			news.bindClusters({
 				maxZoom: 30,
-				// clusterIconOptions:{"radialGradient":{"colorStop":[
-					// [0, color, 1],
-					// [0.2, color, 1],
-					// [1, color, 0.2]
-				
-				// ]}},
-				maxClusterRadius: 50,
+				maxClusterRadius: 60,
 				zoomToBoundsOnClick: false,
 				clusterclick: function(e) {
 					var bounds = e.layer.getBounds();
@@ -54,16 +48,6 @@
 						e.layer.zoomToBounds();
 					}
 				}
-				// ,
-				// iconCreateFunction: function(cluster) {
-					// var childCount = cluster.getChildCount();
-
-					// return new L.DivIcon({
-						// html: '<div>' + childCount + '</div>',
-						// className: 'marker-cluster-news',
-						// iconSize: new L.Point(27, 27)
-					// });
-				// }
 			});
 
 		});
