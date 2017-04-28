@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>Example</title>
+	<meta charset="utf-8" />
+    <style>
+        .leaflet-popup-content {
+            word-wrap: break-word;
+        }
+    </style>
+
+        <link rel="stylesheet" href="https://www.kosmosnimki.ru/lib/geomixer/geomixer.css" charset="utf-8">
+        <script src="https://www.kosmosnimki.ru/lib/geomixer/geomixer-src.js" charset="utf-8"></script>
+
+		<link rel="stylesheet" href="examples.css" />
+</head>
+<body>
+	<div id="map"></div>
+    <div id="infoPanel">
+    </div>
+
+	<script>
+		var map = L.map('map').setView([55.73, 37.59], 8);
+
+        var startDate = new Date(Date.now()),
+            oneDay = 1000*60*60*24,	// milliseconds in one day
+            now = startDate.getTime(),
+            ddt1 = new Date( now - now % oneDay - oneDay), //beginning of the UTC day
+            ddt2 = new Date(ddt1.getTime() + 20*oneDay);
+
+        //Load all the layers from GeoMixer map and add them to Leaflet map
+        L.gmx.loadMap('8F49EC8903C245F8B37772E17587E235', {leafletMap: map}).then(function(gmxMap) {
+			//console.log(gmxMap);
+			var news = gmxMap.layersByID['0063FE5347284163B43E863FCFFA9161'];
+			news.setDateInterval(ddt1, ddt2);
+			news.bindClusters({
+				maxZoom: 30,
+				clusterIconOptions:{"radialGradient":{"colorStop":[[0,"rgba(0,0,0,0.34)",0.8],[1,"rgba(134,206,255,0.58)",0.8]]}},
+				maxClusterRadius: 50,
+				zoomToBoundsOnClick: false,
+				clusterclick: function(e) {
+					var bounds = e.layer.getBounds();
+					var nw = bounds.getNorthWest();
+					var se = bounds.getSouthEast();
+					if (nw.distanceTo(se) === 0) {
+						e.layer.spiderfy();
+					} else {
+						e.layer.zoomToBounds();
+					}
+				},
+				iconCreateFunction: function(cluster) {
+					var childCount = cluster.getChildCount();
+
+					return new L.DivIcon({
+						html: '<div>' + childCount + '</div>',
+						className: 'marker-cluster-news',
+						iconSize: new L.Point(27, 27)
+					});
+				}
+			});
+
+		});
+	</script>
+</body>
+</html>

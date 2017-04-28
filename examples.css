@@ -1,0 +1,66 @@
+﻿html, body, #map {
+    height: 100%;
+    margin: 0px;
+}
+
+.gmxPanel {
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 1px 7px rgba(0,0,0,0.65);
+    padding: 10px;
+}
+
+#infoPanel {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 21px;
+    text-align: center;
+    z-index: 1;
+}
+
+#info {
+    display: inline-block;
+}
+.marker-cluster-news {
+    background-clip: padding-box;
+    border-radius: 14px;
+    width: 27px;
+    height: 27px;
+    background-image: url(news_grey_sm.png);
+    background-repeat: no-repeat;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+}
+.marker-cluster-news div {
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(148, 147, 147, 0.67);
+    width: 14px;
+    color: rgba(19, 19, 19, 0.9);
+    text-align: center;
+    border-radius: 10px;
+    padding: 1px;
+    height: 14px;
+    font-size: 10px;
+    position: relative;
+    top: -5px;
+    left: 15px;
+    font-weight: bold;
+}
+.marker-cluster {
+    position: relative;
+    background: rgba(143, 197, 81, 0.2);
+}
+.marker-cluster div span {
+	visibility: hidden;
+}
+.marker-cluster div {
+    width: 6px;
+    height: 6px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-left: 0px;
+    margin-top: 0px;
+	background-color: #8fc551;
+}
