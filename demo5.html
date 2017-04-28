@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>Example</title>
+	<meta charset="utf-8" />
+    <style>
+        .leaflet-popup-content {
+            word-wrap: break-word;
+        }
+    </style>
+
+        <link rel="stylesheet" href="https://www.kosmosnimki.ru/lib/geomixer/geomixer.css" charset="utf-8">
+        <script src="https://www.kosmosnimki.ru/lib/geomixer/geomixer-src.js" charset="utf-8"></script>
+
+		<link rel="stylesheet" href="examples5.css" />
+</head>
+<body>
+	<div id="map"></div>
+
+	<script>
+		var srs = '3857',
+			crs = srs === '3857' ? L.CRS.EPSG3857 : L.Projection.Mercator;
+		var map = L.map('map', {}).setView([55.73, 37.59], 8);
+L.Icon.Default.imagePath = "images";
+        var oneDay = 1000*60*60*24,	// milliseconds in one day
+			startDate = new Date(Date.now() - 30 * oneDay),
+            now = startDate.getTime(),
+            ddt1 = new Date( now - now % oneDay - oneDay), //beginning of the UTC day
+            ddt2 = new Date(ddt1.getTime() + 30 * oneDay);
+
+        //Load all the layers from GeoMixer map and add them to Leaflet map
+        L.gmx.loadMap('37E4321C17F54A5FBA44A7643117F927', {leafletMap: map, isGeneralized: false}).then(function(gmxMap) {
+			//console.log(gmxMap);
+			var atdz = gmxMap.layersByID['AFD35F403176491F8E7AB6CF28DFB166'],
+				styles = atdz.getStyles(),
+				news = gmxMap.layersByID['AF5C235C5365462690433C1885E89D80'],
+				markers = new L.MarkerClusterGroup({
+					showCoverageOnHover: false
+					,
+					iconCreateFunction: function(cluster) {
+						var cnt = cluster.getChildCount(),
+						size = cnt > 10 ? 60 : cnt * 6,
+						icon = L.divIcon({
+							iconSize: [size, size],
+							html: '<div class="inner"></div>'
+							// html: '<div class="outer"><div class="inner">' + cluster.getChildCount() + '</div></div>'
+						});
+						return icon;
+					}
+				}),
+				_items = {},
+				color = 'rgb(143, 197, 81)',
+				maxNews = 0,
+				dm = news.getDataManager(),
+				tmpKeyNum = dm.tileAttributeIndexes['RegionID'],
+				cache = {};
+			// news.setDateInterval(ddt1, ddt2);
+			news.getIcons(function() {
+				var observer = dm.addObserver({
+					type: 'resend',
+					filters: ['clipFilter', 'styleFilter', 'userFilter'],
+					// active: false,
+					itemHook: function(it) {
+						var arr = it.properties,
+							regionID = arr[tmpKeyNum];
+
+						if (regionID) {
+							cache[regionID] = 1 + (cache[regionID] ? cache[regionID] : 0);
+						}
+						var id = it.id;
+						if (!_items[id]) {
+							var prop = it.properties;
+							var opt = {},
+								style = news.getItemStyle(id),
+								geo = prop[prop.length - 1],
+								p = geo.coordinates,
+								latlng = L.Projection.Mercator.unproject({x: p[0], y: p[1]});
+							if (style.iconUrl) {
+								var iconAnchor = style.iconAnchor;
+								if (!iconAnchor) {
+									iconAnchor = style.image ? [style.sx / 2, style.sy / 2] : [8, 10];
+								}
+								opt.icon = L.icon({
+									iconAnchor: iconAnchor,
+									iconUrl: style.iconUrl
+								});
+							}
+
+							_items[id] = L.marker(latlng, opt);
+						}
+						return it;
+					},
+					callback: function(data) {
+						var out = cache || {},
+							max = 0,
+							arr = [];
+						cache = {};
+						Object.keys(out).forEach(function(key) {
+							max = Math.max(max, out[key]);
+						});
+						maxNews = max;
+						atdz.repaint();
+						markers.clearLayers();
+						Object.keys(_items).forEach(function(key) {
+							arr.push(_items[key]);
+						});
+						markers.addLayers(arr);
+						// console.log(out);
+						return out;
+					}
+				}, this);
+				atdz.setStyleHook(function(it) {
+					var alfa = maxNews ? it.id / maxNews : 0;
+					return {
+						fillStyle: 'rgba(0, 125, 81, ' + alfa/2 + ')'
+						// fillStyle: 'rgba(143, 197, 81, ' + alfa + ')'
+					};
+				});
+				observer.setDateInterval(ddt1, ddt2);
+				// map.on('moveend', function() {
+					// var lbox = map.getBounds(),
+						// bounds = L.gmxUtil.bounds([[lbox._southWest.lng, lbox._southWest.lat], [lbox._northEast.lng, lbox._northEast.lat]]);
+					
+					// observer.setBounds(bounds);
+				// }, this);
+				map.addLayer(markers);
+
+			});
+		});
+	</script>
+</body>
+</html>
