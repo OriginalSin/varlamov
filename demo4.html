@@ -35,6 +35,10 @@
 				color = 'rgb(143, 197, 81)';
 			news.setDateInterval(ddt1, ddt2);
 			news.bindClusters({
+				observerOptions: {
+					filters: ['clipFilter', 'styleFilter', 'userFilter', 'clipPointsFilter'],
+					type: 'resend'
+				},
 				maxZoom: 30,
 				maxClusterRadius: 60,
 				zoomToBoundsOnClick: false,
@@ -49,7 +53,6 @@
 					}
 				}
 			});
-
 		});
 	</script>
 </body>
